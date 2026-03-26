@@ -4,8 +4,8 @@
   "description": "A real-time live chat application built with modern web technologies.",
   "main": "index.js",
   "scripts": {
-    "build": "npm install --prefix Backend && npm install --prefix Frontend && npm run build --prefix Frontend",
-    "start":"npm run start --prefix Backend"
+    "build": "cd Backend && npm install && cd ../Frontend && npm install && npm run build && cd ..",
+    "start": "cd Backend && npm start"
   },
   "keywords": [],
   "author": "",
