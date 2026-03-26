@@ -4,7 +4,7 @@
   "description": "A real-time live chat application built with modern web technologies.",
   "main": "index.js",
   "scripts": {
-    "build": "cd Backend && npm install && cd ../Frontend && npm install && npm run build && cd ..",
+    "build": "cd Backend && npm install --omit=dev && cd ../Frontend && npm install --include=dev && npm run build && cd ..",
     "start": "cd Backend && npm start"
   },
   "keywords": [],
