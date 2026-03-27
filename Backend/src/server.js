@@ -4,6 +4,7 @@ import AuthRouter from "./routes/auth.route.js";
 import path from "path"
 
 dotenv.config()
+import { connectDB } from "./lib/db.js";
 
 const app = express();
 const __dirname = path.resolve()
@@ -25,7 +26,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.listen(PORT,()=>{
-
+    connectDB();
     console.log(`app is rnning in ${PORT}`);
     
 })
