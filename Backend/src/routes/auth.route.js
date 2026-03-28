@@ -1,9 +1,8 @@
 import express from "express";
+import { signUp } from "../controllers/auth.controllers.js";
 
 const Router = express.Router();
 
-Router.get("/signup",(req,res) => {
-    res.send("sign up end point here ")
-})
+Router.post("/signup",signUp)
 
 export default Router;

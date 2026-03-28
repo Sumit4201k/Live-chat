@@ -3,15 +3,27 @@ import dotenv from "dotenv"
 import AuthRouter from "./routes/auth.route.js";
 import path from "path"
 
-dotenv.config()
+dotenv.config(
+    {
+        path:'./env'
+    }
+)
+
+
 import { connectDB } from "./lib/db.js";
+import { json } from "stream/consumers";
 
 const app = express();
 const __dirname = path.resolve()
 
-const PORT = process.env.PORT || 3000;
 
+const PORT = process.env.PORT || 3000;
 console.log( PORT , process.env.NODE_ENV);
+
+//middlewares 
+app.use(express.json({limit: "16kb" }))
+
+//routes 
 
 app.use("/api/auth" , AuthRouter)
 
@@ -25,8 +37,11 @@ if (process.env.NODE_ENV === "production") {
     
 }
 
-app.listen(PORT,()=>{
-    connectDB();
-    console.log(`app is rnning in ${PORT}`);
-    
+connectDB().then(()=>{
+
+    app.listen(PORT,()=>{
+       
+        console.log(`app is rnning in ${PORT}`);
+        
+    })
 })
