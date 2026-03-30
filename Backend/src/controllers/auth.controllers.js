@@ -1,16 +1,24 @@
+import { generateToken } from "../lib/utils.js"
 import User  from "../models/User.model.js"
 import bcrypt from "bcryptjs"
 
 export const signUp = async (req,res)=>{
 
+    const{Fullname , Email , Password } = req.body;
     try {
-        const{Fullname , Email , Password } = req.body
     
-        if (!Fullname && !Email && !Password) {
-            
-            res.send(400).json("all feilds are rquired ")
+            if (!Fullname?.trim()) {
+        return res.status(400).json({ message: "Fullname is required" });
         }
-    
+
+        if (!Email?.trim()) {
+        return res.status(400).json({ message: "Email is required" });
+        }
+
+        if (!Password?.trim()) {
+        return res.status(400).json({ message: "Password is required" });
+        }
+
          if (Password.length < 6) {
           return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
@@ -28,22 +36,36 @@ export const signUp = async (req,res)=>{
         }
 
         const salt =  await bcrypt.genSalt(10)
-        const hashPassword = bcrypt.hash(Password,salt)
+        const hashPassword = await bcrypt.hash(Password,salt)
 
         const newUser = new User({
             Fullname,
-            Email,
+            Email: Email.toLowerCase(),
             Password:hashPassword
         })
 
         if (newUser) {
-            
+            await newUser.save();
+            generateToken(newUser._id,res)
+
+            res.status(201).json(
+                {
+
+                    _id:newUser._id,
+                    Fullname :newUser.Fullname,
+                    Email:newUser.Email.toLowerCase(),
+                    profilePic:newUser.profilePic
+
+                }
+            )
+
         } else {
 
             res.status(400).json({message:"invalid user data "})
         }
     } catch (error) {
-        return res.status(500).json({ message: "ERROR IN SIGN UP" });
+        console.error("SIGNUP ERROR:", error.message);
+        return res.status(500).json({ message: "Internal Server Error" });;
     }
 
 

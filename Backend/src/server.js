@@ -1,17 +1,17 @@
 import express from "express";
 import dotenv from "dotenv"
+dotenv.config()
+
+
+
+
+
 import AuthRouter from "./routes/auth.route.js";
 import path from "path"
-
-dotenv.config(
-    {
-        path:'./env'
-    }
-)
-
-
 import { connectDB } from "./lib/db.js";
-import { json } from "stream/consumers";
+
+
+
 
 const app = express();
 const __dirname = path.resolve()

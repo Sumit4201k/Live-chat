@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const  Userschema = new mongoose.Schema({
-email: {
+Email: {
     type:"String",
     unique:true,
     required:true
@@ -13,7 +13,7 @@ Fullname: {
 Password: {
     type:"String",
     required:true,
-    maxlength:6
+    minlength:6
 },
 profilePic: {
 
