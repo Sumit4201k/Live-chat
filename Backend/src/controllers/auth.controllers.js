@@ -1,8 +1,9 @@
 import { sendWelcomeemail } from "../emails/emailHandler.js";
+import { ENV } from "../lib/env.js";
 import { generateToken } from "../lib/utils.js"
 import User  from "../models/User.model.js"
 import bcrypt from "bcryptjs"
-import "dotenv/config"
+
 
 
 export const signUp = async (req,res)=>{
@@ -63,7 +64,7 @@ export const signUp = async (req,res)=>{
             )
 
             try {
-                await sendWelcomeemail(savedUser.Email,savedUser.Fullname,process.env.CLIENT_URL)
+                await sendWelcomeemail(savedUser.Email,savedUser.Fullname,ENV.CLIENT_URL)
             } catch (error) {
                 console.log("FAILED TO SEND EMAIL IN AUTH");
                 

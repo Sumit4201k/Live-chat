@@ -1,14 +1,15 @@
 import mongoose from 'mongoose';
+import { ENV } from './env.js';
 
 export const connectDB = async() => {
 
-    const MOGODB= process.env.MONGODB_URL
+    const MOGODB= ENV.MONGODB_URL
     if (!MOGODB) {
         console.log("MONGO DB URL ERROR ");
         
     }
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URL)
+        const conn = await mongoose.connect(ENV.MONGODB_URL)
         console.log("DB CONNECTED :",conn.connection.host);
         console.log("DB NAME :",conn.connection.name);
         
