@@ -5,7 +5,7 @@ export const connectDB = async() => {
 
     const MOGODB= ENV.MONGODB_URL
     if (!MOGODB) {
-        console.log("MONGO DB URL ERROR ");
+        console.log("MONGO DB URL ERRO ");
         
     }
     try {
