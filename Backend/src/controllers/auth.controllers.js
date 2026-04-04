@@ -1,7 +1,8 @@
 import { sendWelcomeemail } from "../emails/emailHandler.js";
+import cloudinary from "../lib/cloudinary.js";
 import { ENV } from "../lib/env.js";
 import { generateToken } from "../lib/utils.js"
-import User  from "../models/User.model.js"
+import User from "../models/User.model.js";
 import bcrypt from "bcryptjs"
 
 
@@ -122,4 +123,28 @@ export const logout = async (req,  res )=>{
 
     res.cookie("jwt","",{maxAge:0})
  return res.status(200).json({message:"logOut sucess fully"})
+}
+
+export const updateProfilePicture = async (req,res) =>{
+
+    try {
+        const {profilePicture} = req.body
+        if (!profilePicture) {
+            req.status(400).json({message:"profile pic not uploaded"})
+        }
+    
+        const userID = req.user._id
+    
+        const uplodedProfilepic  = await cloudinary.uploader.upload(profilePicture)
+        
+        const user = User.findByIdAndUpdate(userID,{
+            profilePic:uplodedProfilepic.secure_url
+        },{new:true})
+
+        res.status(200).json({user})
+    
+    } catch (error) {
+        res.status(400).json("error in profile pic update")
+    }
+
 }
