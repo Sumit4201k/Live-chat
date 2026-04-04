@@ -139,7 +139,7 @@ export const updateProfilePicture = async (req,res) =>{
         
         const user = User.findByIdAndUpdate(userID,{
             profilePic:uplodedProfilepic.secure_url
-        },{new:true})
+        },{new:true}).select(-Password)
 
         res.status(200).json({user})
     
