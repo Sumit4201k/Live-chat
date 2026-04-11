@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 dotenv.config()
 import AuthRouter from "./routes/auth.route.js";
+import MessageRouter from "./routes/message.route.js";
 import path from "path"
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
@@ -24,6 +25,7 @@ app.use(cookieParser())
 //routes 
 
 app.use("/api/auth" , AuthRouter)
+app.use("/api/message",MessageRouter)
 
 if (ENV.NODE_ENV === "production") {
 
