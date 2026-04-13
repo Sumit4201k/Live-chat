@@ -23,7 +23,7 @@ export const protect = async (req , res , next)=>{
         res.status(400).json({message:"user not found"})
        }
 
-       req.user = user
+       req.user = user //whole user without password
 
        next()
     } catch (error) {
