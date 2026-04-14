@@ -1,10 +1,11 @@
 import express from 'express';
 import { getAllcontacts, getChatpartners, getmessagesByuserId, sendmessage } from '../controllers/mesaage.controllers.js';
 import { protect } from '../middleware/auth.middleware.js';
+import { arcjetProtection } from '../middleware/arcjet.middleware.js';
 
 const Router = express.Router();
 
-Router.use(protect)
+Router.use(arcjetProtection,protect)
 
 Router.get("/contacts",getAllcontacts)
 Router.get("/chatPartners",getChatpartners)
