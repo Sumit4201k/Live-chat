@@ -7,7 +7,7 @@ import MessageRouter from "./routes/message.route.js";
 import path from "path"
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
-
+import cors from "cors"
 
 
 
@@ -21,6 +21,7 @@ console.log( PORT , ENV.NODE_ENV);
 //middlewares 
 app.use(express.json({limit: "16kb" }))
 app.use(cookieParser())
+app.use(cors({origin:ENV.CLIENT_URL,credentials:true}))
 
 //routes 
 

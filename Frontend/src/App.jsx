@@ -1,5 +1,5 @@
-import React from 'react'
-import {Route,Router,Routes} from 'react-router'
+import React, { useEffect } from 'react'
+import {Navigate, Route,Router,Routes} from 'react-router'
 import Chatpage from './Pages/Chatpage'
 import LoginPage from './Pages/LoginPage'
 import SignUppage from './Pages/SignUppage'
@@ -7,8 +7,15 @@ import { useAuthStore } from './store/AuthStorer'
 
 
 function App() {
-  const { IsloggedIn ,Login  }= useAuthStore()
-  console.log("islogged in ",IsloggedIn);
+ 
+  const {authuser ,isAuthenticated ,AuthCheck} =  useAuthStore()
+
+  useEffect(()=>{
+    AuthCheck()
+  },[AuthCheck])
+
+  console.log("authorization check",isAuthenticated);
+  console.log("authorization check",authuser);
   
   return (
     <div>
@@ -18,12 +25,12 @@ function App() {
       <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
       <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
       
-      <button onClick={Login} className=' z-10'>Click me</button>
+      
 
       <Routes>
-        <Route path="/" element={<Chatpage/>}/>
-        <Route path='/login' element={<LoginPage/>}/>
-        <Route path='/signUp' element={<SignUppage />}/>
+        <Route path="/" element={authuser ? <Chatpage/> : <Navigate to={"/login"} /> } />
+        <Route path='/login' element={!authuser ? <LoginPage/>: <Navigate to={"/"}/> }/>
+        <Route path='/signUp' element={!authuser ? <SignUppage /> : <Navigate to={"/"}/>}/>
       </Routes>
         </div>
 
