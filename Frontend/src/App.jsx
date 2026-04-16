@@ -4,6 +4,7 @@ import Chatpage from './Pages/Chatpage'
 import LoginPage from './Pages/LoginPage'
 import SignUppage from './Pages/SignUppage'
 import { useAuthStore } from './store/AuthStorer'
+import PageLoader from './components/PageLoader'
 
 
 function App() {
@@ -13,6 +14,8 @@ function App() {
   useEffect(()=>{
     AuthCheck()
   },[AuthCheck])
+
+  if (isAuthenticated) return <PageLoader/>
 
   console.log("authorization check",isAuthenticated);
   console.log("authorization check",authuser);
