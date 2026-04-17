@@ -5,7 +5,7 @@ import LoginPage from './Pages/LoginPage'
 import SignUppage from './Pages/SignUppage'
 import { useAuthStore } from './store/AuthStorer'
 import PageLoader from './components/PageLoader'
-
+import {Toaster} from 'react-hot-toast'
 
 function App() {
  
@@ -36,7 +36,7 @@ function App() {
         <Route path='/signUp' element={!authuser ? <SignUppage /> : <Navigate to={"/"}/>}/>
       </Routes>
         </div>
-
+    <Toaster/>
     </div>
   )
 }
