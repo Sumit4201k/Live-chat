@@ -90,18 +90,18 @@ export const login = async (req,res)=>{
         const user =  await User.findOne({Email})
         if (!user) {
             
-          return  res.status(400).json("invalid credentials")
+          return  res.status(400).json({ message: "Invalid credentials" })
 
         }
 
         const isPasswordcorrect = await bcrypt.compare(Password,user.Password)
         if(!isPasswordcorrect) {
-           return res.status(400).json("invalid credentials p")
+           return res.status(400).json({ message: "Invalid credentials" })
         }
 
         generateToken(user._id,res)
 
-        res.status(400).json(
+        res.status(200).json(
             {
                     _id:user._id,
                     Fullname :user.Fullname,

@@ -11,14 +11,14 @@ function App() {
  
   const {authuser ,isAuthenticated ,AuthCheck} =  useAuthStore()
 
-  useEffect(()=>{
-    AuthCheck()
-  },[AuthCheck])
+  // useEffect(()=>{
+  //   AuthCheck()
+  // },[AuthCheck])
 
-  if (isAuthenticated) return <PageLoader/>
+  // if (isAuthenticated) return <PageLoader/>
 
-  console.log("authorization check",isAuthenticated);
-  console.log("authorization check",authuser);
+  // console.log("authorization check",isAuthenticated);
+  // console.log("authorization check",authuser);
   
   return (
     <div>
