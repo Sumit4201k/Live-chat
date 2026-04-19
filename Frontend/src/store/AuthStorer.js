@@ -66,4 +66,7 @@ export const useAuthStore = create((set)=>({
     }
   },
 
+  //TODO: add update profile here
+  //TODO: page header and file handling and useref hook use and lern 
+  //TODO: add update password here as a future enhancement
 }))
