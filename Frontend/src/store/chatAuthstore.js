@@ -6,7 +6,7 @@ export const chatAuthstore = create((set,get)=>({
     allContacts:[],            //to get all contacts
     chats:[],                 //for chat parteners
     messages:[],              //messages of user after slecting a chat messasge 
-    chats:"chats",              //what chat section is gona be active in page 
+    activeTab:"chats",              //what chat section is gona be active in page 
     selectedUser:null,
     isUserLoading:false,
     isMessageLoading:false,
@@ -15,6 +15,36 @@ export const chatAuthstore = create((set,get)=>({
     toggleSound : ( )=>{
         localStorage.setItem("isSoundEnable",!get().isSoundEnabled)
         set({isSoundEnabled:!get().isSoundEnabled})
-    }
+    },
+
+    getMyContacts:()=>{
+        set({isUserLoading:true})
+
+        try {
+            const res = await axiosInstance.get("/api/message/contacts")
+            set({allContacts:res.data})
+            
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }finally {
+            set({isUserLoading:false})
+        }
+    },
+    getMyChatParteners:()=>{
+        set({isUserLoading:true})
+
+        try {
+            const res = await axiosInstance.get("/api/message/chatPartners")
+            set({allContacts:res.data})
+            
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }finally {
+            set({isUserLoading:false})
+        }
+    },
+
+
+    
 
 })) 
