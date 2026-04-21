@@ -17,7 +17,7 @@ export const chatAuthstore = create((set,get)=>({
         set({isSoundEnabled:!get().isSoundEnabled})
     },
 
-    getMyContacts:()=>{
+    getMyContacts:async()=>{
         set({isUserLoading:true})
 
         try {
@@ -30,12 +30,12 @@ export const chatAuthstore = create((set,get)=>({
             set({isUserLoading:false})
         }
     },
-    getMyChatParteners:()=>{
+    getMyChatParteners:async()=>{
         set({isUserLoading:true})
 
         try {
             const res = await axiosInstance.get("/api/message/chatPartners")
-            set({allContacts:res.data})
+            set({chats:res.data})
             
         } catch (error) {
             toast.error(error.response.data.message)

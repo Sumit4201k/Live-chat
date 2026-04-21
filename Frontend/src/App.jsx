@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import {Navigate, Route,Router,Routes} from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import Chatpage from './Pages/Chatpage'
 import LoginPage from './Pages/LoginPage'
 import SignUppage from './Pages/SignUppage'
@@ -11,11 +11,11 @@ function App() {
  
   const {authuser ,isAuthenticated ,AuthCheck} =  useAuthStore()
 
-  // useEffect(()=>{
-  //   AuthCheck()
-  // },[AuthCheck])
+  useEffect(()=>{
+    AuthCheck()
+  },[AuthCheck])
 
-  // if (isAuthenticated) return <PageLoader/>
+  if (isAuthenticated) return <PageLoader/>
 
   // console.log("authorization check",isAuthenticated);
   // console.log("authorization check",authuser);

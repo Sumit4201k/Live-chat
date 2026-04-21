@@ -128,23 +128,46 @@ export const logout = async (req,  res )=>{
 export const updateProfilePicture = async (req,res) =>{
 
     try {
-        const {profilePicture} = req.body
-        if (!profilePicture) {
-            req.status(400).json({message:"profile pic not uploaded"})
+        const { profilePicture, profilePic } = req.body
+        const imageToUpload = profilePicture || profilePic
+
+        if (!imageToUpload) {
+            return res.status(400).json({ message: "profile pic not uploaded" })
         }
     
         const userID = req.user._id
     
-        const uplodedProfilepic  = await cloudinary.uploader.upload(profilePicture)
+        const uplodedProfilepic  = await cloudinary.uploader.upload(imageToUpload)
         
-        const user = User.findByIdAndUpdate(userID,{
-            profilePic:uplodedProfilepic.secure_url
-        },{new:true}).select(-Password)
+        const user = await User.findByIdAndUpdate(
+            userID,
+            {
+                profilePic: uplodedProfilepic.secure_url
+            },
+            { new: true }
+        ).select("-Password")
 
         res.status(200).json({user})
     
     } catch (error) {
-        res.status(400).json("error in profile pic update")
+        console.error("UPDATE PROFILE ERROR:", error.message)
+        res.status(500).json({ message: "error in profile pic update" })
     }
 
 }
+
+/* note for my self for an error 
+What was happening:
+
+Frontend sends profilePic from ProfileHeader.jsx, then calls updateProfile in AuthStorer.js.
+
+Backend was expecting profilePicture in auth.controllers.js, so the value was missing.
+
+That same backend handler also had:
+
+req.status(...) instead of res.status(...)
+
+missing await on findByIdAndUpdate
+
+invalid select(-Password) usage
+ */

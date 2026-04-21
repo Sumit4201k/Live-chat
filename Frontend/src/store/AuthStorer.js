@@ -12,7 +12,7 @@ export const useAuthStore = create((set)=>({
 
     try {
         const res = await axiosInstance.get("/auth/check");
-        set({authuser:res.data})
+      set({authuser:res.data.user})
     
        }
     catch (error) {
@@ -66,7 +66,17 @@ export const useAuthStore = create((set)=>({
     }
   },
 
-  //TODO: add update profile here
+   updateProfile: async (data) => {
+    try {
+      const res = await axiosInstance.put("/auth/update-profile-picture", data);
+      set({ authuser: res.data.user });
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      console.log("Error in update profile:", error);
+      toast.error(error.response.data.message);
+    }
+  },
+  
   //TODO: page header and file handling and useref hook use and lern 
   //TODO: add update password here as a future enhancement
 }))
