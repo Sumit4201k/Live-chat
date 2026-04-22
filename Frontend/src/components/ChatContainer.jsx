@@ -3,6 +3,7 @@ import { chatAuthstore } from '../store/chatAuthstore'
 import { useAuthStore } from '../store/AuthStorer'
 import ChatHeader from './chatHeader'
 import NoChatHistoryPlaceHolder from './noChatHistoryPlaceHolder'
+import MessageLoadingSkeleton from './MessageLoadingSkeleton'
 
 function ChatContainer() {
 
@@ -16,7 +17,7 @@ function ChatContainer() {
     <>
       <ChatHeader/>
       <div  className="flex-1 px-6 overflow-y-auto py-8">
-        {messages.length > 0 ? (
+        {messages.length > 0 && !isMessageLoading ? (
           <div>
             {messages.map((msg)=>(
               <div key={msg._id} 
@@ -38,7 +39,7 @@ function ChatContainer() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : isMessageLoading ? (<MessageLoadingSkeleton/>): (
           <NoChatHistoryPlaceHolder name={selectedUserName} />
         )}
       </div>
