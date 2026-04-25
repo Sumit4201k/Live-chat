@@ -89,10 +89,10 @@ try {
 
 
 
-        const reciverSocketId =  getReciverSocketId(reciverId)
-        
+        const reciverSocketId = getReciverSocketId(reciverId)
+
         if (reciverSocketId) {
-            io.to(reciverId).emit("newMessage",newMessage)
+            io.to(reciverSocketId).emit("newMessage", newMessage)
         }
 
 

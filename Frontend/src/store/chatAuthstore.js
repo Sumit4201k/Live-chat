@@ -15,8 +15,9 @@ export const chatAuthstore = create((set,get)=>({
     isSoundEnabled:localStorage.getItem("isSoundEnabled") === "true",
 
     toggleSound : ( )=>{
-        localStorage.setItem("isSoundEnable",!get().isSoundEnabled)
-        set({isSoundEnabled:!get().isSoundEnabled})
+      const nextValue = !get().isSoundEnabled;
+      localStorage.setItem("isSoundEnabled", String(nextValue))
+      set({isSoundEnabled:nextValue})
     },
 
 
@@ -84,7 +85,11 @@ export const chatAuthstore = create((set,get)=>({
         set({ messages: [...messages, optimisticMessage] });
     try {
         const res = await axiosInstance.post(`/message/send/${selectedUser._id}`,messageData)
-        set({messages:messages.concat(res.data)})
+        set((state) => ({
+            messages: state.messages.map((msg) =>
+              msg._id === tempId ? res.data : msg
+            ),
+        }))
     } catch (error) {
         set({messages: messages}) // Remove optimistic message on error
         toast.error(error.response?.data?.message || "Something went wrong");
@@ -95,33 +100,40 @@ export const chatAuthstore = create((set,get)=>({
     // }
   },
 
-  subscribeToMessages: () => {
-    const {selectedUser , isSoundEnabled} = get()
-    if (!selectedUser ) return;
+    subscribeToMessages: () => {
+      const { selectedUser } = get();
+     if (!selectedUser?._id) return;
 
-    const socket = useAuthStore.getState().socket;
+     const socket = useAuthStore.getState().socket;
+     if (!socket) return;
 
-    socket.on("newMessage" , (newMessage) =>{
+     socket.off("newMessage");
+     socket.on("newMessage", (newMessage) => {
+       const activeUserId = get().selectedUser?._id;
+       if (!activeUserId) return;
 
-       const curentMessages = get().message
-       set({message:[...curentMessages,newMessage]})
+       const isMessageFromOrToSelectedUser =
+        newMessage?.senderId === activeUserId ||
+        newMessage?.receiverId === activeUserId;
 
-       if (isSoundEnabled) {
-        const notification = new Audio("/sounds/notification.mp3")
+       if (!isMessageFromOrToSelectedUser) return;
 
-        notification.currentTime = 0; //reset time to start eveytime
-        notification.play().catch((e)=> console.log("audio play faled ", e)) ;
-        
+       const currentMessages = get().messages;
+       set({ messages: [...currentMessages, newMessage] });
+
+      if (get().isSoundEnabled) {
+        const notificationSound = new Audio("/sounds/notification.mp3");
+
+        notificationSound.currentTime = 0; // reset to start
+        notificationSound.play().catch((e) => console.log("Audio play failed:", e));
        }
-
-
-
-    })
+    });
 
   },
 
   unsubscribeToMessages: ()=>{
-    const socket = useAuthStore.setState().socket;
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
     socket.off("newMessage")
   }
 
