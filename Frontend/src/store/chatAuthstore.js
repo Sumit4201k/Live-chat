@@ -3,6 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./AuthStorer";
 
+
 export const chatAuthstore = create((set,get)=>({
     allContacts:[],            //to get all contacts
     chats:[],                 //for chat parteners
@@ -92,6 +93,36 @@ export const chatAuthstore = create((set,get)=>({
     // finally {
     //     set({isMessageLoading:false})
     // }
+  },
+
+  subscribeToMessages: () => {
+    const {selectedUser , isSoundEnabled} = get()
+    if (!selectedUser ) return;
+
+    const socket = useAuthStore.getState().socket;
+
+    socket.on("newMessage" , (newMessage) =>{
+
+       const curentMessages = get().message
+       set({message:[...curentMessages,newMessage]})
+
+       if (isSoundEnabled) {
+        const notification = new Audio("/sounds/notification.mp3")
+
+        notification.currentTime = 0; //reset time to start eveytime
+        notification.play().catch((e)=> console.log("audio play faled ", e)) ;
+        
+       }
+
+
+
+    })
+
+  },
+
+  unsubscribeToMessages: ()=>{
+    const socket = useAuthStore.setState().socket;
+    socket.off("newMessage")
   }
 
 
