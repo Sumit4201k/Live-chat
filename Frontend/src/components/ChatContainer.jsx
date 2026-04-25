@@ -33,19 +33,19 @@ function ChatContainer() {
   return (
     <>
       <ChatHeader />
-      <div className="flex-1 px-6 overflow-y-auto py-8">
+      <div className="flex-1 px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
         {messages.length > 0 && !isMessageLoading ? (
           <div>
             {messages.map((msg) => (
               <div key={msg._id}
                 className={`chat ${msg.senderId === authuser._id ? "chat-end" : "chat-start"}`}>
                 <div
-                  className={`chat-bubble relative ${msg.senderId === authuser._id
+                  className={`chat-bubble relative max-w-[85%] md:max-w-[70%] break-words ${msg.senderId === authuser._id
                       ? "bg-cyan-600 text-white"
                       : "bg-slate-800 text-slate-200"
                     }`}>
                   {msg.image && (
-                    <img src={msg.image} alt="Shared" className="rounded-lg h-48 object-cover" />
+                    <img src={msg.image} alt="Shared" className="rounded-lg w-full max-w-[220px] md:max-w-xs object-cover" />
                   )}
                   {msg.text && <p className="mt-2">{msg.text}</p>}
                   <p className="text-xs mt-1 opacity-75 flex items-center gap-1">
