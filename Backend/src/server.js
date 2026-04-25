@@ -8,10 +8,10 @@ import path from "path"
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cors from "cors"
+import { app, server } from "./lib/socket.js";
 
 
 
-const app = express();
 const __dirname = path.resolve()
 
 
@@ -41,7 +41,7 @@ if (ENV.NODE_ENV === "production") {
 
 connectDB().then(()=>{
 
-    app.listen(PORT,()=>{
+    server.listen(PORT,()=>{
        
         console.log(`app is rnning in ${PORT}`);
         
