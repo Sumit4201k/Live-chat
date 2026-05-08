@@ -9,6 +9,7 @@ import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cors from "cors"
 import { app, server } from "./lib/socket.js";
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } from "./lib/env.js";
 
 
 
@@ -40,10 +41,15 @@ if (ENV.NODE_ENV === "production") {
 }
 
 connectDB().then(()=>{
+        // fail early if Cloudinary is not configured
+        if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+            console.error(
+                "Cloudinary env vars missing. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET"
+            );
+            process.exit(1);
+        }
 
-    server.listen(PORT,()=>{
-       
-        console.log(`app is rnning in ${PORT}`);
-        
-    })
+        server.listen(PORT,()=>{
+                console.log(`app is rnning in ${PORT}`);
+        })
 })
