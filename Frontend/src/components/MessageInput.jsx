@@ -3,6 +3,7 @@ import useKeyboardSound from '../hooks/useKeyboardSound'
 import { chatAuthstore } from '../store/chatAuthstore';
 import { ImageIcon, SendIcon, XIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { fileToCompressedDataUrl } from '../lib/imageUpload';
 
 function MessageInput() {
   const { playKeySound } = useKeyboardSound()
@@ -29,8 +30,10 @@ function MessageInput() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0]
+    if (!file) return;
+
     if (!file.type.startsWith("image/")) {
       {
         toast.error("Please select an image file");
@@ -38,9 +41,17 @@ function MessageInput() {
       }
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result)
-    reader.readAsDataURL(file)
+    try {
+      const compressedImage = await fileToCompressedDataUrl(file, {
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.75,
+      });
+
+      setImagePreview(compressedImage)
+    } catch (error) {
+      toast.error(error.message || "Failed to process image")
+    }
   }
 
   const removeImage = () => {

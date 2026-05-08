@@ -36,7 +36,7 @@ export const useAuthStore = create((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true })
     try {
-      const res = await axiosInstance.post("/auth/signUp", data)
+      const res = await axiosInstance.post("/auth/signup", data)
       set({ authuser: res.data })
       get().connectSocket();
     } catch (error) {

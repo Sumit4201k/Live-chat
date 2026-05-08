@@ -67,14 +67,27 @@ try {
             return res.status(400).json({ error: "You cannot send a message to yourself" });
         }
 
+        const receiver = await User.findById(reciverId).select("_id")
+        if (!receiver) {
+            return res.status(404).json({ error: "Receiver not found" })
+        }
+
         const hasText = typeof text === "string" && text.trim().length > 0;
         if (!hasText && !image) {
             return res.status(400).json({ error: "Message cannot be empty" });
         }
+
+        if (image && typeof image !== "string") {
+            return res.status(400).json({ error: "Invalid image payload" })
+        }
     
         let imageUrl;
         if (image) {
-            const cloudinaryImageupload = await cloudinary.uploader.upload(image);
+            const cloudinaryImageupload = await cloudinary.uploader.upload(image, {
+                folder: "live-chat/messages",
+                resource_type: "image",
+                transformation: [{ width: 1280, height: 1280, crop: "limit", quality: "auto:good" }]
+            });
             imageUrl = cloudinaryImageupload.secure_url
         }
     
@@ -100,7 +113,7 @@ try {
         res.status(200).json(newMessage)
 } catch (error) {
     console.error("Error sending message:", error);
-    res.status(500).json({ error: "Failed to send message" });
+    res.status(500).json({ error: error.message || "Failed to send message" });
 }
 
     //TODO:want to add real time mesaage convo here when implementing socket io

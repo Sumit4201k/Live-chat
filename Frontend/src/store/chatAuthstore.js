@@ -68,6 +68,16 @@ export const chatAuthstore = create((set,get)=>({
     // set({isMessageLoading:true})
     const {selectedUser , messages} = get()
      const {authuser} = useAuthStore.getState()
+
+     if (!authuser?._id) {
+      toast.error("Please log in again to send messages")
+      return
+     }
+
+     if (!selectedUser?._id) {
+      toast.error("Please select a chat first")
+      return
+     }
     
      const tempId = "temp-" + Date.now(); // Temporary ID for optimistic UI
 
@@ -92,7 +102,7 @@ export const chatAuthstore = create((set,get)=>({
         }))
     } catch (error) {
         set({messages: messages}) // Remove optimistic message on error
-        toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Something went wrong");
 
     } 
     // finally {

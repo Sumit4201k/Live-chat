@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react'
 import { LogOutIcon, Volume2Icon, VolumeOffIcon } from 'lucide-react'
 import { useAuthStore } from '../store/AuthStorer'
 import { chatAuthstore } from '../store/chatAuthstore'
+import toast from 'react-hot-toast'
+import { fileToCompressedDataUrl } from '../lib/imageUpload'
 
 const mouseClickSound = new Audio("/sounds/mouse-click.mp3")
 function ProfileHeader() {
@@ -15,14 +17,25 @@ function ProfileHeader() {
       const file = e.target.files[0]
       if (!file) return
 
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file")
+        return
+      }
 
-      reader.onloadend = async()=>{
-        const base64image = reader.result;
-        setSelectedImg(base64image)
-        await updateProfile({profilePic:base64image})
-      };
+      (async () => {
+        try {
+          const base64image = await fileToCompressedDataUrl(file, {
+            maxWidth: 1024,
+            maxHeight: 1024,
+            quality: 0.75,
+          })
+
+          setSelectedImg(base64image)
+          await updateProfile({profilePic:base64image})
+        } catch (error) {
+          toast.error(error.message || "Failed to process image")
+        }
+      })();
     };
     
 

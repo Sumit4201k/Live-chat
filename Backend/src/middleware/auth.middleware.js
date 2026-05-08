@@ -5,29 +5,32 @@ import User from "../models/User.model.js";
 export const protect = async (req , res , next)=>{
 
     try {
-        
-       const Token = await req.cookies.jwt;
+       const Token = req.cookies?.jwt;
        if (!Token) {
-       return res.status(401).json({message:"unauthorized -token unaviaalble"})
+       return res.status(401).json({message:"Unauthorized - token unavailable"})
        }
 
        const decode =  jwt.verify(Token , ENV.JWT_SECRET)
        if (!decode) {
-        return res.status(401).json({message:"unauthorized - invalid token"})
+        return res.status(401).json({message:"Unauthorized - invalid token"})
        }
 
        const user = await User.findById(decode.userId).select("-Password")
        if (!user) {
         console.log("user not found in protect");
         
-        return res.status(400).json({message:"user not found"})
+        return res.status(401).json({message:"Unauthorized - user not found"})
        }
 
        req.user = user //whole user without password
 
        next()
     } catch (error) {
-        
-        return res.status(400).json({message:"error in protect"})
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+            return res.status(401).json({ message: "Unauthorized - invalid or expired token" })
+        }
+
+        console.error("protect middleware error:", error.message)
+        return res.status(500).json({message:"Internal server error in auth middleware"})
     }
 }

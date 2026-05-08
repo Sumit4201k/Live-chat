@@ -137,7 +137,11 @@ export const updateProfilePicture = async (req,res) =>{
     
         const userID = req.user._id
     
-        const uplodedProfilepic  = await cloudinary.uploader.upload(imageToUpload)
+        const uplodedProfilepic  = await cloudinary.uploader.upload(imageToUpload, {
+            folder: "live-chat/profiles",
+            resource_type: "image",
+            transformation: [{ width: 1024, height: 1024, crop: "limit", quality: "auto:good" }]
+        })
         
         const user = await User.findByIdAndUpdate(
             userID,
@@ -151,7 +155,7 @@ export const updateProfilePicture = async (req,res) =>{
     
     } catch (error) {
         console.error("UPDATE PROFILE ERROR:", error.message)
-        res.status(500).json({ message: "error in profile pic update" })
+        res.status(500).json({ message: error.message || "error in profile pic update" })
     }
 
 }
