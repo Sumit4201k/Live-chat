@@ -10,9 +10,12 @@ export const chatAuthstore = create((set,get)=>({
     messages:[],              //messages of user after slecting a chat messasge 
     activeTab:"chats",        //what chat section is gona be active in page 
     selectedUser:null,
+    isProfilePanelOpen:false,
+    unreadByUser:{},
+    totalUnreadCount:0,
     isUserLoading:false,
     isMessageLoading:false,
-    isSoundEnabled:localStorage.getItem("isSoundEnabled") === "true",
+    isSoundEnabled:localStorage.getItem("isSoundEnabled") !== "false",
 
     toggleSound : ( )=>{
       const nextValue = !get().isSoundEnabled;
@@ -22,7 +25,30 @@ export const chatAuthstore = create((set,get)=>({
 
 
     setActiveTab: (tab) => set({ activeTab: tab }),
-    setSelectedUser: (selectedUser) => set({ selectedUser }),
+    setSelectedUser: (selectedUser) => set((state) => {
+      const selectedUserId = selectedUser?._id?.toString?.();
+
+      if (!selectedUserId) {
+        return { selectedUser };
+      }
+
+      const unreadForSelectedUser = state.unreadByUser[selectedUserId] || 0;
+      if (!unreadForSelectedUser) {
+        return { selectedUser };
+      }
+
+      const nextUnreadByUser = { ...state.unreadByUser };
+      delete nextUnreadByUser[selectedUserId];
+
+      return {
+        selectedUser,
+        unreadByUser: nextUnreadByUser,
+        totalUnreadCount: Math.max(0, state.totalUnreadCount - unreadForSelectedUser),
+      };
+    }),
+    openProfilePanel: () => set({ isProfilePanelOpen: true }),
+    closeProfilePanel: () => set({ isProfilePanelOpen: false }),
+    clearNotifications: () => set({ unreadByUser: {}, totalUnreadCount: 0 }),
 
 
     getMyContacts:async()=>{
@@ -61,6 +87,16 @@ export const chatAuthstore = create((set,get)=>({
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       set({ isMessageLoading: false });
+    }
+  },
+
+  updatePassword: async (data) => {
+    try {
+      const res = await axiosInstance.put("/auth/change-password", data)
+      toast.success(res.data.message || "Password updated successfully")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update password")
+      throw error
     }
   },
 
@@ -111,27 +147,64 @@ export const chatAuthstore = create((set,get)=>({
   },
 
     subscribeToMessages: () => {
-      const { selectedUser } = get();
-     if (!selectedUser?._id) return;
-
      const socket = useAuthStore.getState().socket;
      if (!socket) return;
 
      socket.off("newMessage");
      socket.on("newMessage", (newMessage) => {
-       const activeUserId = get().selectedUser?._id;
-       if (!activeUserId) return;
+       const authUserId = useAuthStore.getState().authuser?._id;
+       if (!authUserId) return;
 
-       const isMessageFromOrToSelectedUser =
-        newMessage?.senderId === activeUserId ||
-        newMessage?.receiverId === activeUserId;
+       const senderId = newMessage?.senderId?.toString?.() || String(newMessage?.senderId || "");
+       const receiverId = newMessage?.receiverId?.toString?.() || String(newMessage?.receiverId || "");
+       const activeUserId = get().selectedUser?._id?.toString?.() || String(get().selectedUser?._id || "");
 
-       if (!isMessageFromOrToSelectedUser) return;
+       const isIncomingMessage = senderId !== String(authUserId) && receiverId === String(authUserId);
+       if (!isIncomingMessage) return;
 
-       const currentMessages = get().messages;
-       set({ messages: [...currentMessages, newMessage] });
+       const isForActiveChat = activeUserId && senderId === activeUserId;
 
-      if (get().isSoundEnabled) {
+       set((state) => {
+        const senderIndex = state.chats.findIndex((chat) => String(chat._id) === senderId);
+        const reorderedChats = senderIndex > 0
+          ? [state.chats[senderIndex], ...state.chats.slice(0, senderIndex), ...state.chats.slice(senderIndex + 1)]
+          : state.chats;
+
+        if (isForActiveChat) {
+          return {
+            chats: reorderedChats,
+            messages: [...state.messages, newMessage],
+          };
+        }
+
+        const previousUnread = state.unreadByUser[senderId] || 0;
+
+        return {
+          chats: reorderedChats,
+          unreadByUser: {
+            ...state.unreadByUser,
+            [senderId]: previousUnread + 1,
+          },
+          totalUnreadCount: state.totalUnreadCount + 1,
+        };
+       });
+
+      if (!isForActiveChat) {
+        const state = get();
+        const senderUser =
+          state.chats.find((chat) => String(chat._id) === senderId) ||
+          state.allContacts.find((user) => String(user._id) === senderId);
+
+        const senderName = senderUser?.fullName || senderUser?.Fullname || senderUser?.Email || "New message";
+        const messagePreview = (newMessage?.text && newMessage.text.trim()) || (newMessage?.image ? "Sent a photo" : "New message");
+
+        toast(`${senderName}: ${messagePreview}`, {
+          duration: 2500,
+          position: "top-right",
+        });
+      }
+
+      if (!isForActiveChat && get().isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
 
         notificationSound.currentTime = 0; // reset to start

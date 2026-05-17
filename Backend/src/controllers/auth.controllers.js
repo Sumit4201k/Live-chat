@@ -160,6 +160,43 @@ export const updateProfilePicture = async (req,res) =>{
 
 }
 
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ message: "currentPassword, newPassword, and confirmPassword are required" });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: "New password must be at least 6 characters" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: "Passwords do not match" });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.Password);
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.Password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        return res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("CHANGE PASSWORD ERROR:", error.message);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
 /* note for my self for an error 
 What was happening:
 

@@ -92,6 +92,17 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  changePassword: async (data) => {
+    try {
+      const res = await axiosInstance.put("/auth/change-password", data);
+      toast.success(res.data.message || "Password updated successfully");
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to update password";
+      toast.error(errorMessage);
+      throw error;
+    }
+  },
+
   connectSocket: () => {
     const { authuser } = get();
     if (!authuser || get().socket?.connected) return;

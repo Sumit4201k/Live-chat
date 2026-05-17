@@ -1,71 +1,35 @@
-import React, { useRef, useState } from 'react'
-import { LogOutIcon, Volume2Icon, VolumeOffIcon } from 'lucide-react'
+import React from 'react'
+import { LogOutIcon, Settings2, Volume2Icon, VolumeOffIcon } from 'lucide-react'
 import { useAuthStore } from '../store/AuthStorer'
 import { chatAuthstore } from '../store/chatAuthstore'
-import toast from 'react-hot-toast'
-import { fileToCompressedDataUrl } from '../lib/imageUpload'
 
 const mouseClickSound = new Audio("/sounds/mouse-click.mp3")
 function ProfileHeader() {
 
-    const {logout,authuser,updateProfile} = useAuthStore()
-    const {toggleSound , isSoundEnabled} = chatAuthstore()
-    const [selectedImg, setSelectedImg] = useState(null)
-    const fileInputRef = useRef(null)
-
-    const handleImageUpload = (e)=>{
-      const file = e.target.files[0]
-      if (!file) return
-
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file")
-        return
-      }
-
-      (async () => {
-        try {
-          const base64image = await fileToCompressedDataUrl(file, {
-            maxWidth: 1024,
-            maxHeight: 1024,
-            quality: 0.75,
-          })
-
-          setSelectedImg(base64image)
-          await updateProfile({profilePic:base64image})
-        } catch (error) {
-          toast.error(error.message || "Failed to process image")
-        }
-      })();
-    };
+    const {logout,authuser} = useAuthStore()
+  const {toggleSound , isSoundEnabled, openProfilePanel} = chatAuthstore()
     
 
   return (
      <div className="p-6 border-b border-slate-700/50">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <button
+          type="button"
+          className="flex items-center gap-3 text-left group"
+          onClick={openProfilePanel}
+        >
           {/* AVATAR */}
           <div className="avatar online">
-            <button
-              className="size-14 rounded-full overflow-hidden relative group"
-              onClick={() => fileInputRef.current.click()}
-            >
+            <div className="size-14 rounded-full overflow-hidden relative group">
               <img
-                src={selectedImg || authuser.profilePic || "/avatar.png"}
+                src={authuser?.profilePic || "/avatar.png"}
                 alt="User image"
                 className="size-full object-cover"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <span className="text-white text-xs">Change</span>
+                <span className="text-white text-xs">Open</span>
               </div>
-            </button>
-
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              className="hidden"
-            />
+            </div>
           </div>
 
           {/* USERNAME & ONLINE TEXT */}
@@ -76,10 +40,21 @@ function ProfileHeader() {
 
             <p className="text-slate-400 text-xs">Online</p>
           </div>
-        </div>
+        </button>
 
         {/* BUTTONS */}
         <div className="flex gap-4 items-center">
+          <button
+            className="text-slate-400 hover:text-slate-200 transition-colors"
+            onClick={() => {
+              mouseClickSound.currentTime = 0;
+              mouseClickSound.play().catch((error) => console.log("Audio play failed:", error));
+              openProfilePanel();
+            }}
+          >
+            <Settings2 className="size-5" />
+          </button>
+
           {/* LOGOUT BTN */}
           <button
             className="text-slate-400 hover:text-slate-200 transition-colors"

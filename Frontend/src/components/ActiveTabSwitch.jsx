@@ -6,7 +6,7 @@ function ActiveTabSwitch() {
   const {activeTab,setActiveTab} = chatAuthstore()
 
   return (
-    <div className="tabs tabs-boxed bg-transparent p-2 m-2">
+    <div className="tabs tabs-boxed bg-transparent p-2 mx-2 w-auto md:w-full">
       <button
         onClick={() => setActiveTab("chats")}
         className={`tab ${

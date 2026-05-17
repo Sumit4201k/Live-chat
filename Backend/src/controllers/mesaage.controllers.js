@@ -3,6 +3,7 @@ import User from "../models/User.model.js";
 import { ENV } from "../lib/env.js";
 import cloudinary from "../lib/cloudinary.js";
 import { getReciverSocketId, io } from "../lib/socket.js";
+import mongoose from "mongoose";
 
 
 export const getAllcontacts = async (req,res) => {
@@ -42,7 +43,7 @@ export const getmessagesByuserId = async(req,res)=>{
             {senderId:userTochat , receiverId:myId}
         ]
         }
-        )
+        ).sort({ createdAt: 1 })
 
         res.status(200).json(message)
     } catch (error) {
@@ -132,40 +133,49 @@ export const getChatpartners = async(req,res) => {
             return res.status(401).json({ message: "Unauthorized: user not found" });
         }
     
-        const message = await Message.find(
-            {
-                $or:[{senderId:loggedInuser},{receiverId:loggedInuser}]
-            }
-        )
+        const loggedInUserObjectId = new mongoose.Types.ObjectId(loggedInuser.toString())
 
-        if (!message || message.length === 0) {
+        const recentChats = await Message.aggregate([
+            {
+                $match: {
+                    $or: [
+                        { senderId: loggedInUserObjectId },
+                        { receiverId: loggedInUserObjectId }
+                    ]
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            {
+                $group: {
+                    _id: {
+                        $cond: [
+                            { $eq: ["$senderId", loggedInUserObjectId] },
+                            "$receiverId",
+                            "$senderId"
+                        ]
+                    },
+                    lastMessageAt: { $first: "$createdAt" }
+                }
+            },
+            { $sort: { lastMessageAt: -1 } }
+        ])
+
+        if (!recentChats || recentChats.length === 0) {
             return res.status(404).json({ message: "No chats found" });
         }
-    
-    
-        const chatPartnerId = [
-            ...new Set(message.map((msg) => {
-            if (msg.senderId.toString() === loggedInuser.toString()) {
-                return msg.receiverId.toString();
-            } else {
-                return msg.senderId.toString();
-            }
-        }))]
-    
-        const chatPartners = await User.
-        find(
-            { _id: { 
-                $in: chatPartnerId
-             } 
-            }
-        )
-        .select("-Password")
+
+        const chatPartnerId = recentChats.map((chat) => chat._id.toString())
+
+        const chatPartners = await User.find({ _id: { $in: chatPartnerId } }).select("-Password")
 
         if (!chatPartners || chatPartners.length === 0) {
             return res.status(404).json({ message: "No chat partners found" });
         }
 
-        res.status(200).json(chatPartners)
+        const chatPartnerMap = new Map(chatPartners.map((partner) => [partner._id.toString(), partner]))
+        const orderedChatPartners = chatPartnerId.map((id) => chatPartnerMap.get(id)).filter(Boolean)
+
+        res.status(200).json(orderedChatPartners)
 
     } catch (error) {
         console.log("error in get getchatparteners",error.message);
