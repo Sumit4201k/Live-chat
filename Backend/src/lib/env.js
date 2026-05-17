@@ -14,13 +14,3 @@ export const ENV = {
 
 ;
 
-/**PORT=3000
-MONGODB_URL=mongodb+srv://kamtisumit685:Sumit6856@cluster0.kaslqo1.mongodb.net/live-chat-app?retryWrites=true&w=majority
-JWT_SECRET=jetdcebry
-
-NODE_ENV=development
-
-RESEND_API=re_Zw7HCVbR_4MiaxFsgnM9p3fokT8GS5ETV
-
-EMAIL_FROM=onboarding@resend.dev
-EMAIL_FROM_NAME="K.SUMIT" */
