@@ -1,5 +1,30 @@
 # Live Chat Application
 
+
+[Live Demo — try it now](https://live-chat-2o2o.onrender.com/)
+
+## Featured Screenshots
+
+| Page | Screenshot |
+| ---- | ---------- |
+| Chatpage | ![Chatpage](screenshots/chatpage.png) |
+| LoginPage | ![LoginPage](screenshots/loginpage.png) |
+| Edit Profile | ![Edit Profile](screenshots/edit-profile.png) |
+
+### Chatpage
+
+Detailed views for the chat page. Replace these placeholders with your screenshots.
+
+- Desktop: ![Chatpage - Desktop](screenshots/chatpage-desktop.png)
+- Mobile: ![Chatpage - Mobile](screenshots/chatpage-mobile.png)
+
+### Edit Profile
+
+Screenshots for the profile editing flow.
+
+- Desktop: ![Edit Profile - Desktop](screenshots/edit-profile-desktop.png)
+- Mobile: ![Edit Profile - Mobile](screenshots/edit-profile-mobile.png)
+
 A full-stack real-time chat app with authentication, online presence, message history, image sharing, profile updates, and email notifications.
 
 ## What It Does
