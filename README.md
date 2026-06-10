@@ -1,31 +1,18 @@
 # Live Chat Application
 
+A full-stack real-time chat app with authentication, online presence, message history, image sharing, profile updates, and email notifications.
 
 [Live Demo — try it now](https://live-chat-2o2o.onrender.com/)
 
-## Featured Screenshots
+## Screenshots
 
-| Page | Screenshot |
-| ---- | ---------- |
-| Chatpage | ![Chatpage](screenshots/chatpage.png) |
-| LoginPage | ![LoginPage](screenshots/loginpage.png) |
-| Edit Profile | ![Edit Profile](screenshots/edit-profile.png) |
+The screenshots below are arranged as a compact view matrix so the page layout is easy to scan at a glance.
 
-### Chatpage
-
-Detailed views for the chat page. Replace these placeholders with your screenshots.
-
-- Desktop: ![Chatpage - Desktop](screenshots/chatpage-desktop.png)
-- Mobile: ![Chatpage - Mobile](screenshots/chatpage-mobile.png)
-
-### Edit Profile
-
-Screenshots for the profile editing flow.
-
-- Desktop: ![Edit Profile - Desktop](screenshots/edit-profile-desktop.png)
-- Mobile: ![Edit Profile - Mobile](screenshots/edit-profile-mobile.png)
-
-A full-stack real-time chat app with authentication, online presence, message history, image sharing, profile updates, and email notifications.
+| Page | Desktop | Mobile |
+| ---- | ------- | ------ |
+| Chat Page | ![Chatpage desktop](screenshots/ChatPage_D.png)<br>906 × 608 | ![Chatpage mobile](screenshots/ChatPage_M.jpeg)<br>720 × 1537 |
+| Login Page | ![Login page desktop](screenshots/LoginPage_D.png)<br>1176 × 589 | ![Login page mobile](screenshots/LoginePage_M.jpeg)<br>718 × 1324 |
+| Edit Profile | ![Edit profile desktop](screenshots/EditProfile_D.png)<br>793 × 614 | ![Edit profile mobile](screenshots/EditProfile_M.jpeg)<br>720 × 1532 |
 
 ## What It Does
 
