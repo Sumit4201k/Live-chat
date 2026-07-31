@@ -128,7 +128,6 @@ export const useAuthStore = create((set, get) => ({
     });
 
     socket.connect();
-
     set({ socket })
 
     //listen for online user event 
