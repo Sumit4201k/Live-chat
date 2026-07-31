@@ -26,6 +26,7 @@ export const useAuthStore = create((set, get) => ({
       if (error?.response?.status !== 401) {
         console.log("error in Authcheck", error);
       }
+      localStorage.removeItem("jwt_token");
       set({ authuser: null })
       get().disconnectSocket();
     } finally {
@@ -37,6 +38,9 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true })
     try {
       const res = await axiosInstance.post("/auth/signup", data)
+      if (res.data?.token) {
+        localStorage.setItem("jwt_token", res.data.token);
+      }
       set({ authuser: res.data })
       get().connectSocket();
     } catch (error) {
@@ -54,6 +58,9 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoginIn: true })
     try {
       const res = await axiosInstance.post("/auth/login", data)
+      if (res.data?.token) {
+        localStorage.setItem("jwt_token", res.data.token);
+      }
       set({ authuser: res.data })
       toast.success("Logged in successfully");
       get().connectSocket();
@@ -71,6 +78,7 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
+      localStorage.removeItem("jwt_token");
       set({ authuser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket()
@@ -108,6 +116,9 @@ export const useAuthStore = create((set, get) => ({
     if (!authuser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
+      auth: {
+        token: localStorage.getItem("jwt_token"), // Explicit token handshake fallback for cross-domain hosts
+      },
       withCredentials: true, //this ensures cookies are sent with connections
       transports: ["websocket"], // Skip HTTP polling upgrade, connect directly via WebSocket
       reconnection: true,

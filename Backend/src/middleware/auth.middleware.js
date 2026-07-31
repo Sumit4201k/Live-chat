@@ -5,7 +5,11 @@ import User from "../models/User.model.js";
 export const protect = async (req , res , next)=>{
 
     try {
-       const Token = req.cookies?.jwt;
+       let Token = req.cookies?.jwt;
+       if (!Token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+           Token = req.headers.authorization.split(" ")[1];
+       }
+
        if (!Token) {
        return res.status(401).json({message:"Unauthorized - token unavailable"})
        }

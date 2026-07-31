@@ -8,14 +8,17 @@ import { log } from "console";
 export const socketAuthMiddleware = async (socket, next) => {
     //extract token from http-only cookie
     try {
-        const token = socket
+        let token = socket
         .handshake.headers.cookie?.split("; ")
         .find((row) => row.startsWith("jwt="))?.split("=")[1];
+
+        if (!token && socket.handshake.auth?.token) {
+            token = socket.handshake.auth.token;
+        }
 
         if(!token){
             console.log("socket connection failed ");
             return next(new Error("unauthorized - no token "))
-            
         }
 
         //varify the token 
