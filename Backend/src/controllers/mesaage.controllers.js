@@ -34,16 +34,19 @@ export const getmessagesByuserId = async(req,res)=>{
             return res.status(400).json({ error: "User ID is required" });
         }
 
-
-    
-        const message = await Message.find(
-            {
+        const query = {
             $or:[
-            {senderId:myId,receiverId:userTochat},
-            {senderId:userTochat , receiverId:myId}
-        ]
+                {senderId:myId,receiverId:userTochat},
+                {senderId:userTochat , receiverId:myId}
+            ]
+        };
+
+        const { since } = req.query;
+        if (since) {
+            query.createdAt = { $gt: new Date(since) };
         }
-        ).sort({ createdAt: 1 })
+    
+        const message = await Message.find(query).sort({ createdAt: 1 })
 
         res.status(200).json(message)
     } catch (error) {
@@ -103,7 +106,7 @@ try {
 
 
 
-        const reciverSocketId = getReciverSocketId(reciverId)
+        const reciverSocketId = await getReciverSocketId(reciverId)
 
         if (reciverSocketId) {
             io.to(reciverSocketId).emit("newMessage", newMessage)

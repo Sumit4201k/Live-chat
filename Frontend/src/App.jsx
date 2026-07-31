@@ -9,11 +9,30 @@ import {Toaster} from 'react-hot-toast'
 
 function App() {
  
-  const {authuser ,isAuthenticated ,AuthCheck} =  useAuthStore()
+  const { authuser, isAuthenticated, AuthCheck, connectSocket, disconnectSocket } = useAuthStore()
 
-  useEffect(()=>{
+  useEffect(() => {
     AuthCheck()
-  },[AuthCheck])
+  }, [AuthCheck])
+
+  useEffect(() => {
+    if (!authuser) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        console.log("[App] Tab hidden, disconnecting socket...");
+        disconnectSocket();
+      } else if (document.visibilityState === "visible") {
+        console.log("[App] Tab active, reconnecting socket...");
+        connectSocket();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [authuser, connectSocket, disconnectSocket]);
 
   if (isAuthenticated) return <PageLoader/>
 

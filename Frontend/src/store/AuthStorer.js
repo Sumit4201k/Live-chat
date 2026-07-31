@@ -108,7 +108,12 @@ export const useAuthStore = create((set, get) => ({
     if (!authuser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
-      withCredentials: true //this ensures cookies are sent with connections
+      withCredentials: true, //this ensures cookies are sent with connections
+      transports: ["websocket"], // Skip HTTP polling upgrade, connect directly via WebSocket
+      reconnection: true,
+      reconnectionAttempts: 15,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
 
     socket.connect();

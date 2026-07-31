@@ -14,7 +14,8 @@ export const ENV = {
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
     ARCJET_API_KEY: process.env.ARCJET_API_KEY,
-    ARCJET_ENV: process.env.ARCJET_ENV
+    ARCJET_ENV: process.env.ARCJET_ENV,
+    REDIS_URL: process.env.REDIS_URL
 }
 
 
