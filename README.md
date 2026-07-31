@@ -2,7 +2,7 @@
 
 A high-performance, containerized, real-time chat application modernized with zero-knowledge End-to-End Encryption (E2EE), offline-first local caching, scalable WebSocket architecture, and active spam protection.
 
-[Live Demo — try it now](https://live-chat-2o2o.onrender.com/)
+[Live Demo — try it now]([https://live-chat-2o2o.onrender.com/](https://live-chat-exkt-git-master-sumit4201k1.vercel.app/login))
 
 ## Screenshots
 
