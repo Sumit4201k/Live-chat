@@ -1,6 +1,6 @@
 # Live Chat Application
 
-A full-stack real-time chat app with authentication, online presence, message history, image sharing, profile updates, and email notifications.
+A high-performance, containerized, real-time chat application modernized with zero-knowledge End-to-End Encryption (E2EE), offline-first local caching, scalable WebSocket architecture, and active spam protection.
 
 [Live Demo — try it now](https://live-chat-2o2o.onrender.com/)
 
@@ -14,161 +14,148 @@ The screenshots below are arranged as a compact view matrix so the page layout i
 | Login Page | ![Login page desktop](screenshots/LoginPage_D.png)<br>1176 × 589 | ![Login page mobile](screenshots/LoginePage_M.jpeg)<br>718 × 1324 |
 | Edit Profile | ![Edit profile desktop](screenshots/EditProfile_D.png)<br>793 × 614 | ![Edit profile mobile](screenshots/EditProfile_M.jpeg)<br>720 × 1532 |
 
-## What It Does
+---
 
-- User signup, login, logout, and auth persistence with JWT cookies
-- Real-time online/offline status with Socket.io
-- One-to-one chat history and contact lists
-- Text and image message sending with Cloudinary uploads
-- Profile picture updates for signed-in users
-- Welcome emails for new users through Resend
-- Route protection and rate limiting with Arcjet
+## ⚡ Modernized Architecture Highlights
 
-## Tech Stack
+### 🔒 1. Zero-Knowledge End-to-End Encryption (E2EE)
+*   **Cryptographic Derivation**: Client keys are derived locally using the browser-native **Web Crypto API** (PBKDF2/SHA-256) dynamically generated from sorted participant IDs and a client-side secret pepper.
+*   **AES-GCM (256-bit)**: Message text is encrypted on the client before network transit. The backend server and MongoDB database **only store and transmit ciphertext**, rendering data completely secure in the event of database breaches.
+
+### 💾 2. Offline-First Local Cache (IndexedDB)
+*   **Instant Load**: Active chat threads load instantly from the browser's local **IndexedDB** database (`LiveChatLocalDB`) without requesting data from the server.
+*   **Delta Synchronization**: On chat load, the app executes a background query checking for new messages since the last saved timestamp (`GET /api/message/:id?since=timestamp`), reducing database and API load.
+
+### 🌐 3. Scalable WebSocket Architecture
+*   **Redis Pub/Sub scaling**: Configured `@socket.io/redis-adapter` for multi-instance horizontal backend scaling.
+*   **Shared Redis presence mapping**: Online presence is mapped to a shared Redis hash (`online_users`) with safe in-memory fallback for local development.
+*   **Optimal Heartbeats**: Ping interval is tuned (`pingInterval: 10000`, `pingTimeout: 5000`) for rapid disconnect cleanup.
+*   **Socket Compression**: Enabled Gzip `perMessageDeflate` frame compression for payloads over 1KB.
+
+### 🛡️ 4. WebSocket Rate Limiting (Anti-Spam)
+*   **Packet Interceptor**: Implemented a custom connection-level `socket.use` middleware that intercepts client event packets.
+*   **Sliding Window**: Users are rate-limited to 10 events per 5 seconds (managed via Redis counts, falling back to local memory track). Excess packets are dropped, logging server blocks and returning a `rateLimitError` warning to the client UI.
+
+### 🔑 5. Dual-Token Authentication (Vercel & Railway Optimized)
+*   **HTTP-Only Cookies**: Secured session cookies for same-site development.
+*   **Authorization Headers Fallback**: Modified backend/frontend routers to support `Authorization: Bearer <token>` authorization. This prevents session blocking on cross-domain hosting (like Vercel to Railway) where browsers block third-party cookies by default.
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- React 19
-- Vite
-- React Router
-- Zustand
-- Socket.io client
-- Axios
-- Tailwind CSS + DaisyUI
+*   **React 19 / Vite** (SPA routing with React Router)
+*   **Zustand** (Global state management)
+*   **IndexedDB** (Offline message local storage)
+*   **Web Crypto API** (PBKDF2 & AES-GCM 256-bit encryption)
+*   **Socket.io client** (Direct WebSocket transport)
+*   **Tailwind CSS + DaisyUI** (Modern dark-mode UI styling)
 
 ### Backend
-- Node.js
-- Express
-- MongoDB with Mongoose
-- Socket.io
-- JWT + cookie-based auth
-- bcryptjs for password hashing
-- Cloudinary for uploads
-- Resend for transactional email
-- Arcjet for protection and rate limiting
+*   **Node.js / Express** (REST API endpoints)
+*   **MongoDB with Mongoose** (Database persistent layer)
+*   **Redis** (Pub/sub adapter & active presence caching)
+*   **Socket.io server** (Scalable real-time event pipeline)
+*   **Resend** (Welcome email services)
+*   **Arcjet** (Server security protection middleware)
+*   **Cloudinary** (Secure image uploads)
 
-## Project Structure
+---
+
+## 📂 Project Structure
 
 ```
 .
+├── docker-compose.yml     # Containerized service orchestration
 ├── Frontend/
+│   ├── vercel.json        # Vercel SPA routing rewrites
 │   ├── src/
-│   │   ├── Pages/
-│   │   ├── components/
-│   │   ├── store/
-│   │   └── lib/
-│   └── public/
+│   │   ├── Pages/         # Route pages (Login, Signup, Profile, Home)
+│   │   ├── components/    # Layout, Sidebar, MessageInput, ChatContainer
+│   │   ├── store/         # Zustand store (AuthStorer, chatAuthstore)
+│   │   └── lib/           # localDb cache, Web Crypto, Axios config
+│   └── public/            # Static assets and sounds
 └── Backend/
-	├── src/
-	│   ├── controllers/
-	│   ├── routes/
-	│   ├── models/
-	│   ├── middleware/
-	│   └── lib/
-	└── src/server.js
+    ├── Dockerfile         # Docker production environment config
+    ├── src/
+    │   ├── controllers/   # Auth, message, and password handlers
+    │   ├── routes/        # Express API routing configuration
+    │   ├── models/        # Database schemas (User, Message)
+    │   ├── middleware/    # Auth, Arcjet, and Socket auth interceptors
+    │   ├── lib/           # Socket configs, db, cloud seeding, test scripts
+    │   └── server.js      # App startup entry point
 ```
 
-## Key Features
+---
 
-- Authentication endpoints for signup, login, logout, and auth checks
-- Protected profile picture update endpoint
-- Contact list that excludes the currently logged-in user
-- Message history between two users
-- Image attachments in messages
-- Socket-powered online user tracking
-- Production-ready static frontend serving from the backend server
+## 🚀 Getting Started
 
-## Getting Started
+### 1. Prerequisites
+*   Node.js (`v18+` recommended)
+*   MongoDB Atlas cluster (Free tier)
+*   Upstash Redis instance (Free tier serverless Redis)
 
-### Prerequisites
-- Node.js
-- npm
-- MongoDB connection string
+### 2. Environment Variables
 
-### Install Dependencies
+Create **`Backend/.env`**:
+```env
+PORT=3000
+MONGODB_URL=mongodb+srv://...
+JWT_SECRET=your_jwt_secret
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+REDIS_URL=rediss://default:...
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+RESEND_API=...
+EMAIL_FROM=...
+EMAIL_FROM_NAME=...
+```
 
+Create **`Frontend/.env`**:
+```env
+VITE_CRYPTO_PEPPER=custom-pepper-key-for-local-encryption
+```
+
+### 3. Run Locally
+
+Install dependencies:
 ```bash
-cd Backend
-npm install
-
-cd ../Frontend
-npm install
+# Backend
+cd Backend && npm install
+# Frontend
+cd ../Frontend && npm install
 ```
 
-### Environment Variables
-
-Create a `.env` file in `Backend/` with values for:
-
-- `PORT`
-- `MONGODB_URL`
-- `JWT_SECRET`
-- `NODE_ENV`
-- `CLIENT_URL`
-- `RESEND_API`
-- `EMAIL_FROM`
-- `EMAIL_FROM_NAME`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `ARCJET_API_KEY`
-- `ARCJET_ENV`
-
-### Run in Development
-
-Start the backend:
-
+Start servers:
 ```bash
-cd Backend
-npm run dev
+# Start Backend
+cd Backend && npm run dev
+# Start Frontend
+cd Frontend && npm run dev
 ```
 
-Start the frontend:
-
+### 4. Run with Docker
+Start the entire containerized architecture with one command:
 ```bash
-cd Frontend
-npm run dev
+docker compose up --build
 ```
 
-### Production Build
+---
 
-From the repository root:
+## 🧪 Testing and Database Administration
 
-```bash
-npm run build
-npm start
-```
+We provided database utility scripts inside `Backend/src/lib/` to aid development and diagnostics:
 
-The root `build` script installs dependencies, builds the frontend, and prepares the backend to serve the compiled frontend.
+*   **Seed Dummy Accounts**: Run `node src/lib/seed.js` inside `/Backend` to populate your database with 5 test users (default password: `password123`).
+*   **Update Profile Pictures**: Run `node src/lib/update-pfp.js` to assign stable letter-based Cloudflare CDN avatars to all test accounts.
+*   **Clear Database Messages**: Run `node src/lib/clear-messages.js` to quickly delete message records and reset your message collections.
+*   **Socket Spam Test**: Run `node src/lib/test-rate-limit.js` to simulate a WebSocket flood attack and verify your server rate limiter is functioning.
 
-## API Overview
+---
 
-### Auth
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `PUT /api/auth/update-profile-picture`
-- `GET /api/auth/check`
+## 📄 License
 
-### Messages
-- `GET /api/message/contacts`
-- `GET /api/message/chatPartners`
-- `GET /api/message/:id`
-- `POST /api/message/send/:id`
-
-## Real-Time Flow
-
-This project uses REST for most data access and Socket.io for presence plus instant delivery.
-
-1. The backend tracks connected users in a `userSocketMap`.
-2. When a user connects or disconnects, the server broadcasts `getOnlineUsers`.
-3. Sending a message stores it in MongoDB and emits `newMessage` to the receiver if they are online.
-4. The frontend updates chat state and contact presence from those socket events.
-
-## Notes
-
-- In production, the backend serves the built frontend from `Frontend/dist`.
-- Message and profile image uploads are handled through Cloudinary.
-- Signup sends a welcome email after the user is created.
-
-## License
-
-ISC
+Licensed under the [ISC License](LICENSE).
