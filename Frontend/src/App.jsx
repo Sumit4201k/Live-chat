@@ -13,6 +13,7 @@ function App() {
 
   useEffect(() => {
     AuthCheck()
+    console.log("%c🚀 Live Chat App Initialized - Secure E2EE and Caching Active", "color: #36D1DC; font-weight: bold; font-size: 13px;");
   }, [AuthCheck])
 
   useEffect(() => {
